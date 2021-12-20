@@ -22,6 +22,10 @@ public class Wall {
         this.high = high;
     }
 
+    public String getNameNumber() {
+        return nameNumber;
+    }
+
     public void setCatJumpBool(boolean catJumpBool) {
         CatJumpBool = catJumpBool;
     }
@@ -52,7 +56,7 @@ public class Wall {
             System.out.println("Cat jump over!");
             setCatJumpBool(true);
         } else {
-            System.out.println("Cat could not do it");
+            System.out.println("Cat could not do it against " + getNameNumber() + " wall");
             setCatJumpBool(false);
         }
     }
@@ -61,7 +65,7 @@ public class Wall {
             System.out.println("Human jump over!");
             setHumanJumpBool(true);
         } else {
-            System.out.println("Human could not do it");
+            System.out.println("Human could not do it against " + getNameNumber() + " wall");
             setHumanJumpBool(false);
         }
     }
@@ -70,7 +74,7 @@ public class Wall {
             System.out.println("Robot jump over!");
             setRobotJumpBool(true);
         } else {
-            System.out.println("Robot could not do it");
+            System.out.println("Robot could not do it against " + getNameNumber() + " wall");
             setRobotJumpBool(false);
         }
     }
