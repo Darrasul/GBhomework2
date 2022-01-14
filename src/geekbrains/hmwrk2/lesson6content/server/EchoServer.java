@@ -1,4 +1,4 @@
-package geekbrains.hmwrk2.lesson6.server;
+package geekbrains.hmwrk2.lesson6content.server;
 
 import java.io.*;
 import java.net.ServerSocket;

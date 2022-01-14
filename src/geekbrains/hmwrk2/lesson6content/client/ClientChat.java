@@ -1,4 +1,4 @@
-package geekbrains.hmwrk2.lesson6.client;
+package geekbrains.hmwrk2.lesson6content.client;
 
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -9,11 +9,7 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class ClientChat extends Application {
 
@@ -38,7 +34,7 @@ public class ClientChat extends Application {
         this.stage.setScene(scene);
 
         ClientController controller = fxmlLoader.getController();
-        controller.UserList.getItems().addAll("user1", "user2");
+        controller.userList.getItems().addAll("user1", "user2");
 
         stage.show();
 

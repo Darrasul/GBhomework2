@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="geekbrains.hmwrk2.lesson6.client.ClientController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="geekbrains.hmwrk2.lesson6content.client.ClientController">
    <top>
       <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Онлайн чат от GeekBrains" BorderPane.alignment="CENTER" />
    </top>
@@ -19,6 +19,6 @@
       </HBox>
    </bottom>
    <left>
-      <ListView fx:id="UserList" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER" />
+      <ListView fx:id="userList" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER" />
    </left>
 </BorderPane>
