@@ -1,4 +1,4 @@
-package geekbrains.hmwrk2.lesson6.client;
+package geekbrains.hmwrk2.lesson6content.client;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
