@@ -1,4 +1,4 @@
-package geekbrains.hmwrk2.lesson6content.client;
+package ru.buzas.client;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -17,12 +17,21 @@ public class Network {
     private DataInputStream socketInput;
     private DataOutputStream socketOutput;
 
-    public Network(int port, String host) {
+    private static Network INSTANCE;
+
+    public static Network getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new Network();
+        }
+        return INSTANCE;
+    }
+
+    private Network(int port, String host) {
         this.port = port;
         this.host = host;
     }
 
-    public Network() {
+    private Network() {
         this(SERVER_PORT, SERVER_HOST);
     }
 
@@ -54,6 +63,9 @@ public class Network {
         Thread thread = new Thread(() -> {
             while (true) {
                 try {
+                    if (Thread.currentThread().isInterrupted()) {
+                        return;
+                    }
                     String message = socketInput.readUTF();
                     messageHandler.accept(message);
                 } catch (IOException e) {
