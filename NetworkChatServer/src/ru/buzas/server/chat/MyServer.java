@@ -1,7 +1,7 @@
 package ru.buzas.server.chat;
 
+import ru.buzas.clientserver.Command;
 import ru.buzas.server.chat.auth.AuthService;
-import ru.buzas.server.chat.auth.User;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -39,22 +39,51 @@ public class MyServer {
         clientHandler.handle();
     }
 
-    public void broadcastMessage(String message, ClientHandler sender) throws IOException {
+    public synchronized void broadcastMessage(String message, ClientHandler sender) throws IOException {
         for (ClientHandler client: clients){
-            if (client != sender && !message.startsWith("/w")){
-                client.sendMessage(message);
-            } else if (message.startsWith("/w " + client.getUserName())){
-                client.sendMessage(message);
+            if (client != sender){
+                client.sendCommand(Command.clientMessageCommand(sender.getUsername(), message));
             }
         }
     }
 
-    public void subscribe(ClientHandler clientHandler){
-        this.clients.add(clientHandler);
+    public synchronized void sendPrivateMessage(ClientHandler sender, String recipient, String privateMessage) throws IOException {
+        for (ClientHandler client: clients){
+            if (client != sender && client.getUsername().equals(recipient)){
+                client.sendCommand(Command.clientMessageCommand(sender.getUsername(), privateMessage));
+            }
+        }
     }
 
-    public void unsubscribe(ClientHandler clientHandler){
+    public synchronized boolean isUsernameBusy(String username){
+        for (ClientHandler client: clients){
+            if (client.getUsername().equals(username)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void notifyUsersAboutUserList() throws IOException {
+        List<String> userListOnline = new ArrayList<>();
+
+        for (ClientHandler client : clients) {
+            userListOnline.add(client.getUsername());
+        }
+
+        for (ClientHandler client : clients) {
+            client.sendCommand(Command.updateUserListCommand(userListOnline));
+        }
+    }
+
+    public synchronized void subscribe(ClientHandler clientHandler) throws IOException {
+        this.clients.add(clientHandler);
+        notifyUsersAboutUserList();
+    }
+
+    public synchronized void unsubscribe(ClientHandler clientHandler) throws IOException {
         this.clients.remove(clientHandler);
+        notifyUsersAboutUserList();
     }
 
     public AuthService getAuthService() {
