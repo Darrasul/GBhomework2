@@ -1,4 +1,4 @@
-package geekbrains.hmwrk2.lesson6content.client;
+package ru.buzas.client;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -17,7 +17,6 @@ public class ClientController {
     @FXML private Button sendButton;
     @FXML public ListView userList;
 
-    private Network network;
     private ClientChat application;
 
     public void sendMessage() {
@@ -39,7 +38,7 @@ public class ClientController {
 
         try {
             message = sender != null ? String.join(": ", sender, message) : message;
-            network.sendMessage(message);
+            Network.getInstance().sendMessage(message);
         } catch (IOException e) {
             application.showErrorDialog("Ошибка передачи данных сети");
         }
@@ -65,10 +64,8 @@ public class ClientController {
         this.application = application;
     }
 
-    public void setNetwork(Network network) {
-        this.network = network;
-
-        network.waitMessages(new Consumer<String>() {
+    public void initializeMessageHandler() {
+        Network.getInstance().waitMessages(new Consumer<String>() {
             @Override
             public void accept(String message) {
                 Platform.runLater(new Runnable() {
