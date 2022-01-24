@@ -59,11 +59,10 @@ public class ClientHandler {
                 @Override
                 public void run() {
                     try {
+                        System.out.println("InterruptTimer start work at " + new Date());
+                        interruptRun = true;
+                        Thread.sleep(120000);
                         if (!interruptRun && !isAuthOK) {
-                            interruptRun = true;
-                            System.out.println("InterruptTimer start work at " + new Date());
-                            Thread.sleep(120000);
-                            isAuthOK = false;
                             isInterrupted = true;
                             System.out.println("Client disconnected at" + new Date());
                         } else {
