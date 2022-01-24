@@ -59,14 +59,16 @@ public class ClientHandler {
                 @Override
                 public void run() {
                     try {
-                        System.out.println("InterruptTimer start work at " + new Date());
-                        interruptRun = true;
-                        Thread.sleep(120000);
-                        if (!interruptRun && !isAuthOK) {
-                            isInterrupted = true;
-                            System.out.println("Client disconnected at" + new Date());
-                        } else {
-                            cancel();
+                        if (!isAuthOK && !interruptRun){
+                            System.out.println("InterruptTimer start work at " + new Date());
+                            interruptRun = true;
+                            Thread.sleep(120000);
+                            if (!isInterrupted && !isAuthOK) {
+                                isInterrupted = true;
+                                System.out.println("Client disconnected at" + new Date());
+                            } else {
+                                cancel();
+                            }
                         }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -93,6 +95,7 @@ public class ClientHandler {
                     sendCommand(Command.errorCommand("Пользователь уже в сети"));
                 } else if (isInterrupted) {
                     sendCommand(Command.errorCommand("Время на подключение(2 мин) вышло"));
+                    return;
                 } else {
                     isAuthOK = true;
                     this.username = userName;
