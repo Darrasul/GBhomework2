@@ -8,6 +8,9 @@ import ru.buzas.clientserver.commands.PublicMessageCommandData;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ClientHandler {
 
@@ -16,6 +19,9 @@ public class ClientHandler {
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private String username;
+    private boolean interruptRun = false;
+    private boolean isInterrupted = false;
+    private boolean isAuthOK = false;
 
     public ClientHandler(MyServer myServer, Socket clientSocket) {
         this.server = myServer;
@@ -48,38 +54,54 @@ public class ClientHandler {
 
     private void authenticate() throws IOException {
         while (true) {
-            DisconnectTimer disconnectTimer = new DisconnectTimer();
-            disconnectTimer.run();
+            Timer interruptTimer = new Timer();
+            TimerTask interruptTask = new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        if (!interruptRun && !isAuthOK) {
+                            interruptRun = true;
+                            System.out.println("InterruptTimer start work at " + new Date());
+                            Thread.sleep(120000);
+                            isAuthOK = false;
+                            isInterrupted = true;
+                            System.out.println("Client disconnected at" + new Date());
+                        } else {
+                            cancel();
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+
+            interruptTimer.schedule(interruptTask, 1000);
             Command command = readCommand();
 
-            if (disconnectTimer.isInteracted()){
-                sendCommand(Command.errorCommand("Вы не сможете подключиться, т.к. время на подключение(2мин) истекло"));
-                closeConnection();
-                break;
-            } else {
-                if (command == null){
-                    continue;
-                }
+            if (command == null) {
+                continue;
+            }
 
-                if (command.getType() == CommandType.AUTH){
-                    AuthCommandData data = (AuthCommandData) command.getData();
-                    String login = data.getLogin();
-                    String password = data.getPassword();
-                    String userName = server.getAuthService().getUserNameByLoginAndPassword(login, password);
+            if (command.getType() == CommandType.AUTH) {
+                AuthCommandData data = (AuthCommandData) command.getData();
+                String login = data.getLogin();
+                String password = data.getPassword();
+                String userName = server.getAuthService().getUserNameByLoginAndPassword(login, password);
 
-                    if(userName == null){
-                        sendCommand(Command.errorCommand("Некорректный логин и пароль"));
-                    } else if (server.isUsernameBusy(userName)) {
-                        sendCommand(Command.errorCommand("Пользователь уже в сети"));
-                    } else {
-                        disconnectTimer.cancel();
-                        this.username = userName;
-                        sendCommand(Command.authOKCommand(userName));
-                        server.subscribe(this);
-                        server.getAuthService().setOnlineAccess(userName, true);
+                if (userName == null) {
+                    sendCommand(Command.errorCommand("Некорректный логин и пароль"));
+                } else if (server.isUsernameBusy(userName)) {
+                    sendCommand(Command.errorCommand("Пользователь уже в сети"));
+                } else if (isInterrupted) {
+                    sendCommand(Command.errorCommand("Время на подключение(2 мин) вышло"));
+                } else {
+                    isAuthOK = true;
+                    this.username = userName;
+                    sendCommand(Command.authOKCommand(userName));
+                    server.subscribe(this);
+                    server.getAuthService().setOnlineAccess(userName, true);
 
-                        return;
-                    }
+                    return;
                 }
             }
 
@@ -103,14 +125,14 @@ public class ClientHandler {
     }
 
     private void readMessages() throws IOException {
-        while (true){
+        while (true) {
             Command command = readCommand();
 
-            if (command == null){
+            if (command == null) {
                 continue;
             }
 
-            switch (command.getType()){
+            switch (command.getType()) {
                 case END: {
                     return;
                 }
@@ -135,6 +157,7 @@ public class ClientHandler {
     }
 
     private void closeConnection() throws IOException {
+        isAuthOK = false;
         clientSocket.close();
         server.unsubscribe(this);
         server.getAuthService().setOnlineAccess(username, false);
