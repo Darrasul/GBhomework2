@@ -45,6 +45,8 @@ public class AuthService {
                 sqlHandler.renameUser(oldUsername, newUsername);
             }
         }
+        USERS_USER.clear();
+        transformIntoUser();
     }
 
     public void initAuthService(){
