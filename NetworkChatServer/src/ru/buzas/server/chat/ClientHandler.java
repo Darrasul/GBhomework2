@@ -90,11 +90,11 @@ public class ClientHandler {
                 String userName = server.getAuthService().getUserNameByLoginAndPassword(login, password);
 
                 if (userName == null) {
-                    sendCommand(Command.errorCommand("Некорректный логин и пароль"));
+                    sendCommand(Command.errorCommand("Incorrect login or password"));
                 } else if (server.isUsernameBusy(userName)) {
-                    sendCommand(Command.errorCommand("Пользователь уже в сети"));
+                    sendCommand(Command.errorCommand("User already online"));
                 } else if (isInterrupted) {
-                    sendCommand(Command.errorCommand("Время на подключение(2 мин) вышло"));
+                    sendCommand(Command.errorCommand("Connection time expired(2 min)"));
                     return;
                 } else {
                     isAuthOK = true;
