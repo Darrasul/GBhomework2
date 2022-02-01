@@ -5,11 +5,14 @@ import ru.buzas.server.chat.auth.AuthInterface;
 import ru.buzas.server.chat.auth.AuthService;
 import ru.buzas.server.chat.auth.DataBaseAuthService;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 public class MyServer {
 
@@ -54,6 +57,8 @@ public class MyServer {
     public synchronized void broadcastMessage(String message, ClientHandler sender) throws IOException {
         for (ClientHandler client: clients){
             if (client != sender){
+                String login = client.getLogin();
+                recordMessage(message, sender.getUsername(), login);
                 client.sendCommand(Command.clientMessageCommand(sender.getUsername(), message));
             }
         }
@@ -62,8 +67,41 @@ public class MyServer {
     public synchronized void sendPrivateMessage(ClientHandler sender, String recipient, String privateMessage) throws IOException {
         for (ClientHandler client: clients){
             if (client != sender && client.getUsername().equals(recipient)){
+                String login = client.getLogin();
+                recordMessage(privateMessage, sender.getUsername(), login);
                 client.sendCommand(Command.clientMessageCommand(sender.getUsername(), privateMessage));
             }
+        }
+    }
+
+    private void recordMessage(String message, String sender, String login) {
+        String historyLogsPath = "NetworkChatServer/src/main/java/ru/buzas/server/chat/messages/history_"+ login + ".txt";
+        try (PrintWriter writer = new PrintWriter(new FileWriter(historyLogsPath, true))) {
+            Date date = new Date();
+//            writer.printf("%s(%s): %s", sender, date, message);
+            writer.write(sender + "(" + date + "): " + message + "\n");
+        } catch (IOException e) {
+            System.err.println("Unable to record message");
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void viewRecords(ClientHandler client, String login) {
+        String historyLogsPath = "NetworkChatServer/src/main/java/ru/buzas/server/chat/messages/history_"+ login + ".txt";
+        try (Scanner scanner = new Scanner(new FileReader(historyLogsPath))) {
+            for (int i = 100; i >= 0; i--) {
+                if (scanner.hasNext()){
+                    client.sendCommand(Command.clientMessageCommand("Архив", scanner.nextLine()));
+                } else {
+                    break;
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("Unable to read records");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("Failed to connect to server while view records");
+            e.printStackTrace();
         }
     }
 

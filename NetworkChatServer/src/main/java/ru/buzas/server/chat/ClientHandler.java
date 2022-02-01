@@ -20,6 +20,7 @@ public class ClientHandler {
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private String username;
+    private String login;
     private boolean interruptRun = false;
     private boolean isInterrupted = false;
     private boolean isAuthOK = false;
@@ -36,6 +37,7 @@ public class ClientHandler {
         new Thread(() -> {
             try {
                 authenticate();
+                server.viewRecords(this, login);
                 readMessages();
             } catch (IOException e) {
                 System.err.println("Failed to process client message");
@@ -99,6 +101,7 @@ public class ClientHandler {
                     return;
                 } else {
                     isAuthOK = true;
+                    this.login = login;
                     this.username = userName;
                     sendCommand(Command.authOKCommand(userName));
                     server.subscribe(this);
@@ -177,5 +180,9 @@ public class ClientHandler {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getLogin() {
+        return login;
     }
 }
