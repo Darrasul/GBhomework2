@@ -8,12 +8,12 @@
         <outputRelativeToContentRoot value="true" />
         <module name="NetworkChatClientServer" />
         <module name="NetworkChatClient" />
+        <module name="NetworkChatServer" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="JavaFXChat" target="11" />
-      <module name="NetworkChatClient" target="11" />
-      <module name="NetworkChatClientServer" target="11" />
+      <module name="NetworkSQLModule" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>

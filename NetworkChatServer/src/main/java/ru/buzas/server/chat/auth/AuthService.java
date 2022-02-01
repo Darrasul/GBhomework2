@@ -1,22 +1,27 @@
 package ru.buzas.server.chat.auth;
 
-import ru.buzas.sql.SQLHandler;
-import ru.buzas.sql.SQLObject;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class AuthService {
+public class AuthService implements AuthInterface {
 
     private Set<User> USERS_USER = new HashSet<>();
-    private Set<SQLObject> USERS_SQL_OBJ = new HashSet<>();
-    private SQLHandler sqlHandler = new SQLHandler();
 
     public String getUserNameByLoginAndPassword(String login, String password){
         User requiredUser = new User(login, password);
         for (User user : USERS_USER){
             if(requiredUser.equals(user)){
                 return user.getUserName();
+            }
+        }
+        return null;
+    }
+
+    private User getUserByUsername(String username) {
+        for (User user : USERS_USER) {
+            if (user.getUserName().equals(username)){
+                return user;
             }
         }
         return null;
@@ -39,24 +44,17 @@ public class AuthService {
         }
     }
 
-    public void renameUser(String oldUsername, String newUsername){
-        for (User user : USERS_USER) {
-            if (user.getUserName() == oldUsername){
-                sqlHandler.renameUser(oldUsername, newUsername);
+    @Override
+    public void updateUsername(String oldUsername, String newUsername) {
+        User user = getUserByUsername(oldUsername);
+        for (User oldUser : USERS_USER) {
+            if (oldUser.getUserName().equals(newUsername)){
+                System.err.println("Username already exist");
+                return;
             }
         }
-        USERS_USER.clear();
-        transformIntoUser();
-    }
-
-    public void initAuthService(){
-        transformIntoUser();
-    }
-
-    private void transformIntoUser() {
-        sqlHandler.getUsersData(USERS_SQL_OBJ);
-        for (SQLObject sqlObject : USERS_SQL_OBJ) {
-            USERS_USER.add(new User(sqlObject.getLogin(), sqlObject.getPassword(), sqlObject.getUserName()));
+        if (user != null){
+            user.setUserName(newUsername);
         }
     }
 }

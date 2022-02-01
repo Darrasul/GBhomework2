@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 public class UpdateUserListCommandData implements Serializable {
-        private final List<String> users;
+
+    private final List<String> users;
 
     public UpdateUserListCommandData(List<String> users) {
         this.users = users;

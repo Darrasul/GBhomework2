@@ -2,9 +2,11 @@ package ru.buzas.client.controllers;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import ru.buzas.client.ClientChat;
+import ru.buzas.client.dialogs.Dialogs;
 import ru.buzas.client.model.Network;
 import ru.buzas.client.model.ReadCommandListener;
 import ru.buzas.clientserver.Command;
@@ -15,7 +17,7 @@ import ru.buzas.clientserver.commands.UpdateUserListCommandData;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.List;
+import java.util.Optional;
 
 
 public class ClientController {
@@ -95,5 +97,30 @@ public class ClientController {
                 }
             }
         });
+    }
+
+    public void closeChat(ActionEvent actionEvent) {
+        ClientChat.INSTANCE.getChatStage().close();
+    }
+
+    public void updateUsername(ActionEvent actionEvent) {
+        TextInputDialog editDialog = new TextInputDialog();
+        editDialog.setTitle("Изменение имени пользователя");
+        editDialog.setHeaderText("Введите новое имя");
+        editDialog.setContentText("Новое имя: ");
+
+        Optional<String> result = editDialog.showAndWait();
+        if (result.isPresent()){
+            try {
+                Network.getInstance().changeUsername(result.get());
+            } catch (IOException e) {
+                e.printStackTrace();
+                Dialogs.NetworkError.SEND_MESSAGE.show();
+            }
+        }
+    }
+
+    public void About(ActionEvent actionEvent) {
+        Dialogs.AboutDialog.INFO.show();
     }
 }
