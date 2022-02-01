@@ -6,7 +6,7 @@ public class User {
 
     private final String login;
     private final String password;
-    private final String userName;
+    private String userName;
     public boolean onlineStatus;
 
     public User(String login, String password, String userName) {
@@ -33,6 +33,10 @@ public class User {
 
     public String getUserName() {
         return userName;
+    }
+
+    public void setUserName(String userName){
+        this.userName = userName;
     }
 
     public boolean isOnlineStatus() {

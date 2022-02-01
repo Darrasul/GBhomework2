@@ -69,6 +69,10 @@ public class Network {
         }
     }
 
+    public void changeUsername(String newUsername) throws IOException {
+        sendCommand(Command.updateUsernameCommand(newUsername));
+    }
+
     public void sendPrivateMessage(String receiver, String message) throws IOException {
         sendCommand(Command.privateMessageCommand(receiver, message));
     }

@@ -5,6 +5,7 @@ import ru.buzas.clientserver.CommandType;
 import ru.buzas.clientserver.commands.AuthCommandData;
 import ru.buzas.clientserver.commands.PrivateMessageCommandData;
 import ru.buzas.clientserver.commands.PublicMessageCommandData;
+import ru.buzas.clientserver.commands.UpdateUsernameCommandData;
 
 import java.io.*;
 import java.net.Socket;
@@ -90,11 +91,11 @@ public class ClientHandler {
                 String userName = server.getAuthService().getUserNameByLoginAndPassword(login, password);
 
                 if (userName == null) {
-                    sendCommand(Command.errorCommand("Incorrect login or password"));
+                    sendCommand(Command.errorCommand("Неверные имя или пароль"));
                 } else if (server.isUsernameBusy(userName)) {
-                    sendCommand(Command.errorCommand("User already online"));
+                    sendCommand(Command.errorCommand("Пользователь уже в сети"));
                 } else if (isInterrupted) {
-                    sendCommand(Command.errorCommand("Connection time expired(2 min)"));
+                    sendCommand(Command.errorCommand("Время на подключение исчерпано(2 мин)"));
                     return;
                 } else {
                     isAuthOK = true;
@@ -148,6 +149,15 @@ public class ClientHandler {
                 case PUBLIC_MESSAGE: {
                     PublicMessageCommandData publicData = (PublicMessageCommandData) command.getData();
                     processMessage(publicData.getMessage());
+                    break;
+                }
+                case UPDATE_USERNAME: {
+                    UpdateUsernameCommandData data = (UpdateUsernameCommandData) command.getData();
+                    String newUsername = data.getUsername();
+                    server.getAuthService().updateUsername(username, newUsername);
+                    username = newUsername;
+                    server.notifyUsersAboutUserList();
+                    break;
                 }
             }
         }

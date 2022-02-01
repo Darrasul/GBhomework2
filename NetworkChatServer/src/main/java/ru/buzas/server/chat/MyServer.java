@@ -1,7 +1,9 @@
 package ru.buzas.server.chat;
 
 import ru.buzas.clientserver.Command;
+import ru.buzas.server.chat.auth.AuthInterface;
 import ru.buzas.server.chat.auth.AuthService;
+import ru.buzas.server.chat.auth.DataBaseAuthService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -12,13 +14,13 @@ import java.util.List;
 public class MyServer {
 
     private final List<ClientHandler> clients = new ArrayList<>();
-    private AuthService authService;
+    private AuthInterface authService;
 
     public void start(int port) {
         try (ServerSocket serverSocket = new ServerSocket(port)){
             System.out.println("Server has been started");
-            authService = new AuthService();
-            authService.initAuthService();
+            authService = createAuthService();
+            authService.start();
 
             while (true){
                 waitForClientConnectionAndProcess(serverSocket);
@@ -27,7 +29,16 @@ public class MyServer {
             
         } catch (IOException e){
             System.err.println("Failed to bind port " + port);
+        } finally {
+            if (authService != null){
+                authService.stop();
+            }
         }
+    }
+
+    private AuthInterface createAuthService() {
+//        return new AuthService();
+        return new DataBaseAuthService();
     }
 
     private void waitForClientConnectionAndProcess(ServerSocket serverSocket) throws IOException {
@@ -65,7 +76,7 @@ public class MyServer {
         return false;
     }
 
-    private void notifyUsersAboutUserList() throws IOException {
+    public void notifyUsersAboutUserList() throws IOException {
         List<String> userListOnline = new ArrayList<>();
 
         for (ClientHandler client : clients) {
@@ -87,7 +98,7 @@ public class MyServer {
         notifyUsersAboutUserList();
     }
 
-    public AuthService getAuthService() {
+    public AuthInterface getAuthService() {
         return authService;
     }
 }
