@@ -1,5 +1,6 @@
 package ru.buzas.client.model;
 
+import ru.buzas.client.service.ChatHistory;
 import ru.buzas.clientserver.Command;
 
 import java.io.*;
@@ -20,6 +21,7 @@ public class Network {
     private final List<ReadCommandListener> listeners = new CopyOnWriteArrayList<>();
     private static Network INSTANCE;
     private boolean connected;
+    private String currentUserName;
     private Thread readMessageProcess;
 
     public static Network getInstance() {
@@ -145,4 +147,11 @@ public class Network {
         return connected;
     }
 
+    public String getCurrentUserName() {
+        return currentUserName;
+    }
+
+    public void setCurrentUserName(String currentUserName) {
+        this.currentUserName = currentUserName;
+    }
 }
