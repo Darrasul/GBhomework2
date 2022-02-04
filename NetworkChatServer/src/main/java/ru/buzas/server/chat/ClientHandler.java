@@ -12,6 +12,10 @@ import java.net.Socket;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ClientHandler {
 
@@ -23,6 +27,7 @@ public class ClientHandler {
     private boolean interruptRun = false;
     private boolean isInterrupted = false;
     private boolean isAuthOK = false;
+    ExecutorService handlingPool = Executors.newCachedThreadPool();
 
     public ClientHandler(MyServer myServer, Socket clientSocket) {
         this.server = myServer;
@@ -32,9 +37,19 @@ public class ClientHandler {
     public void handle() throws IOException {
         outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
         inputStream = new ObjectInputStream(clientSocket.getInputStream());
-
-        new Thread(() -> {
+//        Тут кажется CachedThreadPool
+        handlingPool.execute(() -> {
             try {
+                ScheduledExecutorService interruptionTimer = Executors.newSingleThreadScheduledExecutor();
+                if (!interruptRun){
+                    System.out.println("Interruption timer is on");
+                    interruptionTimer.schedule(() -> {
+                        if (!isAuthOK){
+                            isInterrupted = true;
+                            System.out.println("Client disconnected at" + new Date());
+                        }
+                    }, 2, TimeUnit.MINUTES);
+                }
                 authenticate();
                 readMessages();
             } catch (IOException e) {
@@ -48,36 +63,13 @@ public class ClientHandler {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
 
 
     }
 
     private void authenticate() throws IOException {
         while (true) {
-            Timer interruptTimer = new Timer();
-            TimerTask interruptTask = new TimerTask() {
-                @Override
-                public void run() {
-                    try {
-                        if (!isAuthOK && !interruptRun){
-                            System.out.println("InterruptTimer start work at " + new Date());
-                            interruptRun = true;
-                            Thread.sleep(120000);
-                            if (!isInterrupted && !isAuthOK) {
-                                isInterrupted = true;
-                                System.out.println("Client disconnected at" + new Date());
-                            } else {
-                                cancel();
-                            }
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-
-            interruptTimer.schedule(interruptTask, 1000);
             Command command = readCommand();
 
             if (command == null) {
