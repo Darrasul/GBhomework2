@@ -7,6 +7,8 @@ import java.io.*;
 import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Network {
     public static final String SERVER_HOST = "localhost";
@@ -22,7 +24,7 @@ public class Network {
     private static Network INSTANCE;
     private boolean connected;
     private String currentUserName;
-    private Thread readMessageProcess;
+    private ExecutorService readerPool = Executors.newSingleThreadExecutor();
 
     public static Network getInstance() {
         if(INSTANCE == null) {
@@ -45,7 +47,7 @@ public class Network {
             socket = new Socket(this.host, this.port);
             socketInput = new ObjectInputStream(socket.getInputStream());
             socketOutput = new ObjectOutputStream(socket.getOutputStream());
-            readMessageProcess = startReadMessageProcess();
+            startReadMessageProcess();
 
             connected = true;
             return true;
@@ -83,8 +85,8 @@ public class Network {
         sendCommand(Command.authCommand(login, password));
     }
 
-    public Thread startReadMessageProcess() {
-        Thread thread = new Thread(() -> {
+    public void startReadMessageProcess() {
+        readerPool.execute(() -> {
             while (true) {
                 try {
                     if (Thread.currentThread().isInterrupted()) {
@@ -99,16 +101,13 @@ public class Network {
                     }
 
                 } catch (IOException e) {
-                    System.err.println("Не удалось прочитать сообщение от сервера");
+                    System.err.println("Failed to read server message");
                     e.printStackTrace();
                     close();
                     break;
                 }
             }
         });
-        thread.setDaemon(true);
-        thread.start();
-        return thread;
     }
 
     private Command readCommand() throws IOException {
@@ -136,7 +135,7 @@ public class Network {
     public void close() {
         try {
             connected = false;
-            readMessageProcess.interrupt();
+            readerPool.shutdownNow();
             this.socket.close();
         } catch (IOException e){
             e.printStackTrace();
