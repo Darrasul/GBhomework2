@@ -135,7 +135,7 @@ public class Network {
     public void close() {
         try {
             connected = false;
-            readerPool.shutdown();
+            readerPool.shutdownNow();
             this.socket.close();
         } catch (IOException e){
             e.printStackTrace();

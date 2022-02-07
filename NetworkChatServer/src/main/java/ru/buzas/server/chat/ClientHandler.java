@@ -162,6 +162,7 @@ public class ClientHandler {
 
     private void closeConnection() throws IOException {
         isAuthOK = false;
+        handlingPool.shutdownNow();
         clientSocket.close();
         server.unsubscribe(this);
         server.getAuthService().setOnlineAccess(username, false);
