@@ -1,5 +1,7 @@
 package ru.buzas.server.chat;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.buzas.clientserver.Command;
 import ru.buzas.clientserver.CommandType;
 import ru.buzas.clientserver.commands.AuthCommandData;
@@ -10,8 +12,6 @@ import ru.buzas.clientserver.commands.UpdateUsernameCommandData;
 import java.io.*;
 import java.net.Socket;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,6 +28,7 @@ public class ClientHandler {
     private boolean isInterrupted = false;
     private boolean isAuthOK = false;
     ExecutorService handlingPool = Executors.newCachedThreadPool();
+    private final static Logger LOGGER = LogManager.getLogger(ClientHandler.class);
 
     public ClientHandler(MyServer myServer, Socket clientSocket) {
         this.server = myServer;
@@ -42,24 +43,28 @@ public class ClientHandler {
             try {
                 ScheduledExecutorService interruptionTimer = Executors.newSingleThreadScheduledExecutor();
                 if (!interruptRun){
-                    System.out.println("Interruption timer is on");
+//                    System.out.println("Interruption timer is on");
+                    LOGGER.info("Interruption timer is on");
                     interruptionTimer.schedule(() -> {
                         if (!isAuthOK){
                             isInterrupted = true;
-                            System.out.println("Client disconnected at" + new Date());
+//                            System.out.println("Client disconnected at" + new Date());
+                            LOGGER.info("Client disconnected at" + new Date());
                         }
                     }, 2, TimeUnit.MINUTES);
                 }
                 authenticate();
                 readMessages();
             } catch (IOException e) {
-                System.err.println("Failed to process client message");
+//                System.err.println("Failed to process client message");
+                LOGGER.error("Failed to process client message", new IOException("IOException"));
                 e.printStackTrace();
             } finally {
                 try {
                     closeConnection();
                 } catch (IOException e) {
-                    System.err.println("Failed to close connection");
+//                    System.err.println("Failed to close connection");
+                    LOGGER.error("Failed to close connection", new IOException("IOException"));
                     e.printStackTrace();
                 }
             }
@@ -113,7 +118,8 @@ public class ClientHandler {
         try {
             command = (Command) inputStream.readObject();
         } catch (ClassNotFoundException e) {
-            System.err.println("Failed to read command class");
+//            System.err.println("Failed to read command class");
+            LOGGER.error("Failed to read command class", new ClassNotFoundException("ClassNotFoundException"));
             e.printStackTrace();
         }
         return command;
@@ -146,6 +152,7 @@ public class ClientHandler {
                 case UPDATE_USERNAME: {
                     UpdateUsernameCommandData data = (UpdateUsernameCommandData) command.getData();
                     String newUsername = data.getUsername();
+                    LOGGER.info("Username change from " + username + " to " + newUsername);
                     server.getAuthService().updateUsername(username, newUsername);
                     username = newUsername;
                     server.notifyUsersAboutUserList();
@@ -156,7 +163,8 @@ public class ClientHandler {
     }
 
     private void processMessage(String message) throws IOException {
-        System.out.println("clientMessageCommand: " + message);
+//        System.out.println("clientMessageCommand: " + message);
+        LOGGER.info("clientMessageCommand: " + message);
         this.server.broadcastMessage(message, this);
     }
 

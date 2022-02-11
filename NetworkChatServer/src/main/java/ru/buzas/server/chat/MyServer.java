@@ -1,8 +1,9 @@
 package ru.buzas.server.chat;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.buzas.clientserver.Command;
 import ru.buzas.server.chat.auth.AuthInterface;
-import ru.buzas.server.chat.auth.AuthService;
 import ru.buzas.server.chat.auth.DataBaseAuthService;
 
 import java.io.IOException;
@@ -13,12 +14,14 @@ import java.util.List;
 
 public class MyServer {
 
+    private static final Logger LOGGER = LogManager.getLogger(MyServer.class);
     private final List<ClientHandler> clients = new ArrayList<>();
     private AuthInterface authService;
 
     public void start(int port) {
         try (ServerSocket serverSocket = new ServerSocket(port)){
-            System.out.println("Server has been started");
+//            System.out.println("Server has been started");
+            LOGGER.info("Server has been started");
             authService = createAuthService();
             authService.start();
 
@@ -28,7 +31,8 @@ public class MyServer {
 
             
         } catch (IOException e){
-            System.err.println("Failed to bind port " + port);
+//            System.err.println("Failed to bind port " + port);
+            LOGGER.error("Failed to bind port " + port, new IOException("IOException"));
         } finally {
             if (authService != null){
                 authService.stop();
@@ -42,10 +46,12 @@ public class MyServer {
     }
 
     private void waitForClientConnectionAndProcess(ServerSocket serverSocket) throws IOException {
-        System.out.println("Waiting for new connections");
+//        System.out.println("Waiting for new connections");
+        LOGGER.info("Waiting for new connections");
         Socket clientSocket = serverSocket.accept();
 
-        System.out.println("Client has been connected");
+//        System.out.println("Client has been connected");
+        LOGGER.info("Client has been connected");
         ClientHandler clientHandler = new ClientHandler(this ,clientSocket);
 
         clientHandler.handle();

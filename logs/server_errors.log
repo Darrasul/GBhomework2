@@ -1,0 +1,6 @@
+2022-02-11 20:44:36.668 [main] INFO   - Server has been started
+2022-02-11 20:44:37.376 [main] INFO   - Waiting for new connections
+2022-02-11 20:44:56.141 [main] INFO   - Client has been connected
+2022-02-11 20:44:56.149 [main] INFO   - Waiting for new connections
+2022-02-11 20:44:56.151 [pool-2-thread-1] INFO   - Interruption timer is on
+2022-02-11 20:45:02.841 [pool-2-thread-1] INFO   - clientMessageCommand: hi again
