@@ -49,7 +49,7 @@ public class ClientHandler {
                         if (!isAuthOK){
                             isInterrupted = true;
 //                            System.out.println("Client disconnected at" + new Date());
-                            LOGGER.info("Client disconnected at" + new Date());
+                            LOGGER.info("Client disconnected at {}", new Date());
                         }
                     }, 2, TimeUnit.MINUTES);
                 }
