@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <Properties>
+        <Property name="basePath">logs</Property>
+    </Properties>
+
+    <appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level  - %msg%n"/>
+        </Console>
+
+        <File name="Errors" fileName="${basePath}/server_errors.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level  - %msg%n"/>
+        </File>
+
+        <File name="Logs" fileName="${basePath}/server_logs.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level  - %msg%n"/>
+        </File>
+
+    </appenders>
+
+    <loggers>
+
+        <Logger name="ru.buzas.server.chat.MyServer" level="info" additivity="false">
+            <appender-ref ref="Logs"/>
+            <appender-ref ref="Console"/>
+        </Logger>
+
+        <root level="error">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="Errors"/>
+        </root>
+    </loggers>
+
+</configuration>
