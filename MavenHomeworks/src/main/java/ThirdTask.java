@@ -17,10 +17,6 @@ public class ThirdTask implements ThirdTaskInterface {
                 isThereSecondNumber = true;
             }
         }
-        if (isThereFirstNumber && isThereSecondNumber){
-            return true;
-        } else {
-            return false;
-        }
+        return isThereFirstNumber && isThereSecondNumber;
     }
 }

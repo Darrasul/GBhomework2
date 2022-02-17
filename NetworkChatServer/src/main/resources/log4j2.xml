@@ -13,10 +13,20 @@
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level  - %msg%n"/>
         </File>
 
+        <File name="Logs" fileName="${basePath}/server_logs.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level  - %msg%n"/>
+        </File>
+
     </appenders>
 
     <loggers>
-        <root level="info">
+
+        <Logger name="ru.buzas.server.chat.MyServer" level="info" additivity="false">
+            <appender-ref ref="Logs"/>
+            <appender-ref ref="Console"/>
+        </Logger>
+
+        <root level="error">
             <appender-ref ref="Console"/>
             <appender-ref ref="Errors"/>
         </root>

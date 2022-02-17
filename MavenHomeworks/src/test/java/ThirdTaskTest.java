@@ -7,17 +7,17 @@ public class ThirdTaskTest {
 
     private ThirdTaskInterface task;
 
-        @Before
+    @Before
     public void setUp() {
         task = new ThirdTask();
     }
 
-        @After
+    @After
     public void tearDown() {
         task = null;
     }
 
-        @Test
+    @Test
     public void rightArrayTest() {
         boolean actualResult = true;
         int[] testInit = {1, 4, 1, 4};

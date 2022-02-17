@@ -152,7 +152,7 @@ public class ClientHandler {
                 case UPDATE_USERNAME: {
                     UpdateUsernameCommandData data = (UpdateUsernameCommandData) command.getData();
                     String newUsername = data.getUsername();
-                    LOGGER.info("Username change from " + username + " to " + newUsername);
+                    LOGGER.info("Username change from {} to {}", username, newUsername);
                     server.getAuthService().updateUsername(username, newUsername);
                     username = newUsername;
                     server.notifyUsersAboutUserList();
@@ -163,8 +163,7 @@ public class ClientHandler {
     }
 
     private void processMessage(String message) throws IOException {
-//        System.out.println("clientMessageCommand: " + message);
-        LOGGER.info("clientMessageCommand: " + message);
+        LOGGER.info("clientMessageCommand: {}", message);
         this.server.broadcastMessage(message, this);
     }
 
